@@ -1,48 +1,50 @@
 # Splogger
-A Chrome extension which helps user automate the process of logging jira's tasks from data processed from log files in splunk.
+A Chrome extension which automates the copy-paste part of logging JIRA issues from data processed from log files in Splunk.
 
-### What does it do ? 
-This is a simple application which reads specific parts of the DOM on the page and then once all the data is collected from page sends it to jira with necessary details to create a jira. This eliminates the manual copy-paste the programmer currently has to do once he has filtered out an issue in splunk for tracking.
+### What Does It Do ? 
+Splogger is a simple extension that reads specific parts of the DOM from a Splunk search page and sends those specific details in a properly formatted request to JIRA to get it logged as an issue. This eliminates the manual copy-paste part an end user would otherwise have to do once they have filtered out an issue in Splunk for tracking.
 
-### What does it not do?
-This will not scan through splunk logs and modify the search criteria and then log the jira automatically. This is not **skynet from terminator** . It facilitates the manual task user has to do of copy-paste not process logs and log jira's automatically.
+### What Does It Not Do?
+Splogger will not scan through Splunk logs and modify the search criteria nor log the JIRA automatically. This is not **skynet from terminator**. It replaces the manual copy-pasting task an end user has to do.
 
-### Who made this and why?
-The inspiration came when we were brainstorming for an idea for hackathon. We have  a process in company where everyday a developer from team has to spend 1 hour going through splunk logs and after tweaking the search criteria such that it only filters a unique issue log a jira on it for tracking. 
-We have to put details on jira such as 
-* URL of the splunk issue
-* Search criteria
-* Stack trace
-* No of Occurence 
+### Who Made This & Why?
+We have a Splunk monitoring & issue logging process wherein a developer from each team (on a rotational basis) has to spend about an hour going through Splunk logs and log a JIRA for the issues found after tweaking the search criteria such that each search string uniquely identifies a single issue. Then the JIRA identifier can be tagged as the Event Type for that issue on Splunk for tracking purposes. Per team conventions, each JIRA should contains at least: 
+* The URL of the Splunk issue (Search Page)
+* The Search Criteria
+* The Exception Stack Trace
+* The Number of Occurences
 
-All this had to be copy pasted manually to jira which is annoying and repetative.Hence Splogger was born
+All of the above had to be copy-pasted manually to create each JIRA which is a repetitive & annoying process.
+As we were brainstorming an idea for the upcoming Hackathon, the inspiration came to us to simplify/automate this process & Splogger was born.
 
-This was made by me[Praveen Banthia],Pathare Neil,Gade Tejaswi,Katneni Naren in 24 hours  as part of Revenue Cycle Hackathaon. The goal of our project was to make life of programmer happier by trying to elimate manual things that can be done in otherways.
+Splogger was created by Praveen Banthia, Neil Pathare, Tejaswi Gade & Naren Katneni in 24 hours as part of the Hackathaon. The goal of our project was to make the lives of developers happier by trying to elimate some of the manual things that could be automated.
 
-### What was the final verdict of hackathon?
-This sentiment was shared by others since we won the competetion as the most finished and useful product across. We also won the people's choice award for the product that will be used by most people across the organization
+### What Was the Final Verdict of the Hackathon?
+Splogger got the first place & we have a trophy to prove it!
+This sentiment was evidently shared by others since Splogger also won the "People's Choice" award for the entry that would be used by the most number of people across the organization.
 
-### Can you use it ?
+### How Can You Use It ?
 
-#### what you get
-Of course you can you although you will have to tweak a few things for that. Let me first put out what it can do for you in its current form
+With a few tweaks, you can get started!
 
-* It can read specific parts of the DOM
-	 * i.e search string,url(with SID stripped), stack trace & no of occurences
-* It has API to connect with jira and retreive project types and  subtype
-* It can create custom labels when creating a jira
-* It can auto populate those and show the user what will be send to jira
-* It has ability to let user create the name of jira he is logging
+#### What Do You Need To Do?
 
+* Splogger will only be active on certain pages which need to be set in `manifest.json` (Look for the `VALID_URL_HERE` string & replace that with the string containging the server address where your Splunk is installed, usually something like: https://logs.host.com).
+* You might also want to modify what details are retreived from the DOM on the contentScript [here]( 
+https://github.com/SPLUNK-JIRA-Logger/Splogger/blob/master/contentScript.js#L56).
+* You also might want to modify the description being saved in JIRA on [popup.js](
+https://github.com/SPLUNK-JIRA-Logger/Splogger/blob/master/popup/popup.js#L42)
+* Add any other columns you require to log a JIRA on the configuration page.
 
-#### What you need to do?
+#### What You Get
+ So what can Splogger do for you in its current form:
 
-* It also will only be active on certain pages which can be tweaked in manifest.json in ***PUT VALID URL HERE*** section
-* You might also want to modify what details are retreived from DOM in 
-https://github.com/praveen2710/Chrome-Extensions/blob/master/Splogger/contentScript.js#L56
-* You also might want to modift the description being saved in jira in 
-https://github.com/praveen2710/Chrome-Extensions/blob/master/Splogger/popup/popup.js#L42
-* And also add any other columns required by jira in configuration page.
+* Read specific parts of the DOM (from a Splunk search page).
+	 * i.e search string, URL (with the SID stripped), the exception stack trace & the number of occurences.
+* Connect with JIRA and retreive Project & Issue types.
+* Create custom labels when creating a JIRA
+* Set the name (summary) of the JIRA that is being logged.
+* Auto populate description details and show the user what will be sent to JIRA.
 
 ### Issue Tracking and Future Enhancements
-* https://praveenbanthia.myjetbrains.com/youtrack/issues/SPLOGGER
+* Log any issues & enhancement requests on the 'Issues' tab.
