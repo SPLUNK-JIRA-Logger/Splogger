@@ -18,7 +18,7 @@
     },
 
     "content_scripts": [{
-        "matches": ["PUT A VALID URL HERE", "PUT A VALID URL HERE"],
+        "matches": ["VALID_URL_HERE", "VALID_URL_HERE"],
         "js": ["contentScript.js"]
     }],
 
