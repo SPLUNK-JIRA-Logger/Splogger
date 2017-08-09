@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Splogger</title>
+    <link rel="stylesheet" href="/popup/popup.css">
+    <script src="/popup/popup.js"></script>
+    <script src="/eventPage.js"></script>
+</head>
+
+
+<body>
+    <!-- Header Section -->
+    <div id="header">
+        <header>
+            <h1>Splogger</h1>
+            <img src="/images/banner.png" alt="Splogger" width="100%" height="50">
+        </header>
+    </div>
+
+    <!-- main content -->
+    <div class='content'>
+        <div class="errorMessage"><span id="SearchStringIssue"></span></div>
+        <div class="errorMessage"><span id="ProjectNameTypeissue"></span></div>
+        <table>
+            <tr>
+                <td><b>Title</b></td>
+                <td><input id="jiraTitle" type='text' size="65" /> </td>
+            </tr>
+            <tr>
+                <td><b>Project Name</b></td>
+                <td><input id="projectName" type='text' size="65" readonly/> </td>
+            </tr>
+            <tr>
+                <td><b>Issue Type</b></td>
+                <td><input id="issueType" type='text' size="65" readonly/> </td>
+            </tr>
+            <tr>
+                <td><b>Search String</b></td>
+                <td><textarea id="searchString" rows="10" cols="60" readonly> </textarea></td>
+            </tr>
+            <tr>
+                <td><b>Stack Trace</b></td>
+                <td><textarea id="stackTrace" rows="10" cols="60" readonly> </textarea> </td>
+            </tr>
+            <tr>
+                <td><b>Occurrences</b></td>
+                <td><input id="eventOccurrences" type="text" size="65" readonly/></td>
+            </tr>
+            <tr>
+                <td><b>Labels</b></td>
+                <td>
+                    <div class="container" id='labelContainer'></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <br/>
+    <table>
+        <tr>
+            <td><button id="populateValues" style="height:30px;width:200px">Populate From Splunk</button></td>
+            <td>
+                <div class="tooltip">
+                    <button id="createJira" style="height:30px;width:200px">Create JIRA</button>
+                    <!-- span class="tooltiptext" id="tooltiptext">Populate all required fields.</span -->
+                </div>
+            </td>
+        </tr>
+
+
+    </table>
+</body>
+
+</html>

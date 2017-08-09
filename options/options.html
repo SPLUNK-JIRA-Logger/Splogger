@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>JIRA Logger for Splunk Issues</title>
+    <link rel="stylesheet" href="/options/options.css">
+    <script src="/options/options.js"></script>
+</head>
+
+<body>
+    <h1>Splogger Options</h1>
+    <br/>Splunk Issues Logger for JIRA
+    <br/><br/>
+    <div class="tab">
+        <button class="tablinks" id='jiraTabButton'>JIRA</button>
+        <button class="tablinks" id='detailsTabButton'>Details</button>
+        <button class="tablinks" id='historyTabButton'>History</button>
+    </div>
+
+    <div id="Jira" class="tabcontent">
+        <table>
+            <tr>
+                <td>User ID</td>
+                <td><input id="userID" type="text" /></td>
+            </tr>
+            <tr>
+                <td>Password</td>
+                <td><input id="password" type="password" /></td>
+            </tr>
+            <tr>
+                <td>JIRA</td>
+                <td><input placeholder="https://jira.host.com" id="jiraInstance" type="text" /></td>
+            </tr>
+        </table>
+        <button id="addInstance" style="display: none;">Add JIRA Instance</button>
+        <div id="jiraInstanceContainer"></div>
+        <br/><br/>
+        <button id="save">Save</button><button id="reset">Reset</button>
+    </div>
+
+    <div id="Labels" class="tabcontent">
+        <table>
+            <tr>
+                <td>Project Name</td>
+                <td><select id='projectName'></select></td>
+            </tr>
+            <tr>
+                <td>Issue Type</td>
+                <td><select id='issueType'></select></td>
+            </tr>
+            <tr>
+                <td>Labels</td>
+                <td><input id='labelValue' type='text' /></td>
+                <td><button id="addLabel">Add label</button></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><select id='labelList' multiple></select></td>
+                <div id ="removeButton">
+                    <td><button id="removeLabel">Remove Selected Label</button></td>
+                </div>
+            </tr>
+        </table>     
+        
+    </div>
+
+    <div id="historyTab" class="tabcontent">
+        <div id="historyTabDIV"> </div>
+    </div>
+</body>
+
+</html>

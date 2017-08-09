@@ -1,0 +1,36 @@
+{
+    "manifest_version": 2,
+
+    "name": "Splogger",
+    "description": "JIRA Logger for Splunk Issues",
+    "version": "0.2",
+
+    "page_action": {
+        "default_icon": "/images/icon.png",
+        "default_popup": "/popup/popup.html"
+    },
+
+    "options_page": "/options/options.html",
+
+    "background": {
+        "scripts": ["eventPage.js"],
+        "persistent": false
+    },
+
+    "content_scripts": [{
+        "matches": ["PUT A VALID URL HERE", "PUT A VALID URL HERE"],
+        "js": ["contentScript.js"]
+    }],
+
+    "permissions": [
+        "tabs",
+        "activeTab",
+        "debugger",
+        "storage",
+        "declarativeContent",
+        "declarativeContent",
+        "notifications",
+        "https://*/",
+        "http://*/"
+    ]
+}
