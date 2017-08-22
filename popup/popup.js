@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var projectKey = document.getElementById("projectName").value;
         var issueType = document.getElementById("issueType").value;
 
+        labelList.push("Splogger");
         // Get checked Labels
         if (totalLabelCounter > 0) {
             var i = 1;
