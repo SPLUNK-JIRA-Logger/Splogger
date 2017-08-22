@@ -318,6 +318,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    //This will auto update the history tab with the newely created Jira's
+    chrome.storage.onChanged.addListener(function(changes, namespace) {
+        for (key in changes) {
+            if(key == 'jiraHistory'){
+                document.getElementById('historyTabButton').click();
+                console.log("Update of jira history detected")
+            }
+        }
+    });
+
     document.getElementById('addLabel').addEventListener("click", function() {
         var label = document.createElement('option');
         var labelValue = document.getElementById('labelValue').value;
