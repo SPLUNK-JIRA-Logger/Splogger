@@ -469,8 +469,8 @@ function populateProjectListOptions(selectbox) {
     });
 
     chrome.storage.local.get('selectedProjectNameIdx', function(items) {
-        if (items.selectedProjectNameIdx < 0) {
-            selectbox.selectedIndex = 0;
+        if (items.selectedProjectNameIdx < 0 || items.selectedProjectNameIdx == undefined) {
+            selectbox.selectedIndex = -1;
         } else {
             selectbox.selectedIndex = items.selectedProjectNameIdx;
         }
@@ -493,8 +493,8 @@ function populateProjectIssueOptions(selectbox) {
     });
 
     chrome.storage.local.get('selectedIssueTypeIdx', function(items) {
-        if (items.selectedIssueTypeIdx < 0) {
-            selectbox.selectedIndex = 0;
+        if (items.selectedIssueTypeIdx < 0 || items.selectedIssueTypeIdx == undefined) {
+            selectbox.selectedIndex = -1;
         } else {
             selectbox.selectedIndex = items.selectedIssueTypeIdx;
         }
