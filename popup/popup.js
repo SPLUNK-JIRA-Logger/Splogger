@@ -220,8 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     function populateProjectNameAndType() {
         chrome.storage.local.get(['projectsList', 'selectedProjectNameIdx', 'projectTypes', 'selectedIssueTypeIdx'], function(items) {
-            if(items.projectsList !=  undefined && items.projectTypes!= undefined
-                && items.projectTypes[items.selectedIssueTypeIdx] != undefined && items.projectsList[items.selectedProjectNameIdx] != undefined) {
+            if(items.projectsList !=  undefined && items.projectTypes!= undefined) {
                 var res = items.projectsList[items.selectedProjectNameIdx].split('|');
                 document.getElementById("projectName").value = res[1];
                 document.getElementById("issueType").value = items.projectTypes[items.selectedIssueTypeIdx]
