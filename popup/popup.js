@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Disable scrollbars
+    document.documentElement.style.overflow = 'hidden';
+
     var totalLabelCounter = 0;
     var enableCreateJiraButton = 0;
     var labelList = [];
@@ -227,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById("issueType").value = items.projectTypes[items.selectedIssueTypeIdx]
                 document.getElementById("ProjectNameTypeissue").innerHTML = ""
             }else{
-                document.getElementById("ProjectNameTypeissue").innerHTML = "Please Update Project Name and Issue Type To create Jira"
+                document.getElementById("ProjectNameTypeissue").innerHTML = "Populate Project Name & Issue Type To Create JIRA"
             }
         });
     }
