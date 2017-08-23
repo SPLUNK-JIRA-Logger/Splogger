@@ -5,7 +5,7 @@ document.addEventListener(
     document.documentElement.style.overflow = "hidden";
 
     var totalLabelCounter = 0;
-    var enableCreateJiraButton = 0;
+    var disableCreateJiraButton = 0;
     var labelList = [];
 
     areAllDetailsPopulated();
@@ -211,15 +211,14 @@ document.addEventListener(
       false
     );
 
-    document.getElementById("jiraTitle").addEventListener("keydown", function() {
+    document.getElementById("jiraTitle").addEventListener("input", function() {
       areAllDetailsPopulated();
     });
 
     /**
-     * This will validate that all the feilds are populated before jira creation is triggered.
+     * This will validate that all the fields are populated before jira creation is triggered.
      */
     function areAllDetailsPopulated() {
-      document.getElementById("createJira").disabled = true;
       if (
         document.getElementById("jiraTitle").value != "" &&
         document.getElementById("projectName").value != "" &&
@@ -228,17 +227,14 @@ document.addEventListener(
         document.getElementById("stackTrace").value != "" &&
         document.getElementById("eventOccurrences").value != ""
       ) {
-        enableCreateJiraButton = 1;
+        disableCreateJiraButton = false;
+      }else{
+          disableCreateJiraButton = true;
       }
 
-      if (enableCreateJiraButton === 1) {
-        console.log("enableCreateJiraButton:" + enableCreateJiraButton);
-        document.getElementById("createJira").disabled = false;
-        //var text = document.getElementById('tooltiptext').value;
-        //document.getElementById('tooltiptext').value = 'Create Jira';
-      } else {
-        console.log("enableCreateJiraButton:" + enableCreateJiraButton);
-      }
+      console.log("disableCreateJiraButton:" + disableCreateJiraButton);
+      document.getElementById("createJira").disabled = disableCreateJiraButton;
+
     }
 
     /**
