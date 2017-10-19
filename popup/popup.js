@@ -26,6 +26,7 @@ document.addEventListener(
         var jiraTitle = document.getElementById("jiraTitle").value;
         var projectKey = document.getElementById("projectName").value;
         var issueType = document.getElementById("issueType").value;
+        var searchString = document.getElementById("searchString").value;
 
         // Always add the Splogger Label for adoption metrics
         labelList.push("Splogger");
@@ -143,9 +144,111 @@ document.addEventListener(
                               },
                               function() {
                                 console.log("Success Notification Sent");
-                                chrome.tabs.create({"url": jiraURL, "active": false, "selected": false}); 
+                                chrome.tabs.create({ url: jiraURL, active: false, selected: false });
                               }
                             );
+
+                            // Retrieve Splunk API URL
+                            var splunkAPIURL;
+                            chrome.storage.local.get("splunkAPIURL", function(content) {
+                              if (content.splunkAPIURL === undefined || content.splunkAPIURL.length <= 0) {
+                                console.debug("Undefined Splunk API URL!");
+                              } else {
+                                splunkAPIURL = content.splunkAPIURL;
+                                console.log("Retrieved Splunk API URL");
+
+                                // Retrieve Splunk App Name
+                                var splunkApp;
+                                chrome.storage.local.get("splunkApp", function(content) {
+                                  if (content.splunkApp === undefined || content.splunkApp.length <= 0) {
+                                    console.debug("Undefined Splunk App!");
+                                  } else {
+                                    splunkApp = content.splunkApp;
+                                    console.log("Retrieved Splunk App");
+
+                                    // POST EventType to SPLUNK
+                                    var createEventTypeRequest = new XMLHttpRequest();
+                                    var eventTypeParams =
+                                      "name=" +
+                                      encodeURIComponent(jiraIdentifier) +
+                                      "&priority=5&disabled=0&description=" +
+                                      encodeURIComponent(jiraIdentifier) +
+                                      "&search=" +
+                                      encodeURIComponent(searchString);
+                                    createEventTypeRequest.open("POST", splunkAPIURL + currUserID + "/" + splunkApp + "/saved/eventtypes", true);
+                                    createEventTypeRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                                    createEventTypeRequest.setRequestHeader("Authorization", "Basic " + base64UserPass);
+                                    createEventTypeRequest.onreadystatechange = function() {
+                                      if (createEventTypeRequest.readyState == 4 && createEventTypeRequest.status == 201) {
+                                        console.log("Splunk Event Type Created");
+
+                                        // Update Event Type Permissions
+                                        var updateEventTypeRequest = new XMLHttpRequest();
+                                        var updateEventTypeParams =
+                                          "perms.read=" +
+                                          encodeURIComponent("*") +
+                                          "&perms.write=" +
+                                          encodeURIComponent("*") +
+                                          "&sharing=app&owner=" +
+                                          encodeURIComponent(currUserID);
+                                        updateEventTypeRequest.open(
+                                          "POST",
+                                          splunkAPIURL + currUserID + "/" + splunkApp + "/saved/eventtypes/" + jiraIdentifier + "/acl",
+                                          true
+                                        );
+                                        updateEventTypeRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                                        updateEventTypeRequest.setRequestHeader("Authorization", "Basic " + base64UserPass);
+                                        updateEventTypeRequest.onreadystatechange = function() {
+                                          if (updateEventTypeRequest.readyState == 4 && updateEventTypeRequest.status == 200) {
+                                            console.log("Splunk Event Type Updated");
+                                            chrome.notifications.create(
+                                              "event-type-update-notification",
+                                              {
+                                                type: "basic",
+                                                iconUrl: "/images/success.png",
+                                                title: "Splunk Event Type",
+                                                message: "Splunk Event Type Created & Permissions Updated!"
+                                              },
+                                              function() {
+                                                console.log("Success Notification Sent");
+                                              }
+                                            );
+                                          } else if (updateEventTypeRequest.readyState == 4 && updateEventTypeRequest.status != 200) {
+                                            chrome.notifications.create(
+                                              "event-type-update-notification",
+                                              {
+                                                type: "basic",
+                                                iconUrl: "/images/alert.png",
+                                                title: "Event Type Update",
+                                                message: "Failed to update Event Type permissions!"
+                                              },
+                                              function() {
+                                                console.log("Failure Notification Sent");
+                                              }
+                                            );
+                                          }
+                                        };
+                                        updateEventTypeRequest.send(updateEventTypeParams);
+                                      } else if (createEventTypeRequest.readyState == 4 && createEventTypeRequest.status != 201) {
+                                        chrome.notifications.create(
+                                          "event-type-creation-notification",
+                                          {
+                                            type: "basic",
+                                            iconUrl: "/images/alert.png",
+                                            title: "Event Type Creation",
+                                            message: "Failed to create Event Type!"
+                                          },
+                                          function() {
+                                            console.log("Failure Notification Sent");
+                                          }
+                                        );
+                                      }
+                                    };
+                                    createEventTypeRequest.send(eventTypeParams);
+                                  }
+                                });
+                              }
+                            });
 
                             document.getElementById("jiraTitle").value = "";
                             document.getElementById("stackTrace").value = "";
@@ -216,7 +319,8 @@ document.addEventListener(
     });
 
     /**
-     * This will validate that all the fields are populated before jira creation is triggered.
+     * Validate whether all the required details are populated.
+     * Enables/Disables the 'Create JIRA' button accordingly.
      */
     function areAllDetailsPopulated() {
       if (
@@ -228,13 +332,12 @@ document.addEventListener(
         document.getElementById("eventOccurrences").value != ""
       ) {
         disableCreateJiraButton = false;
-      }else{
-          disableCreateJiraButton = true;
+      } else {
+        disableCreateJiraButton = true;
       }
 
       console.log("disableCreateJiraButton:" + disableCreateJiraButton);
       document.getElementById("createJira").disabled = disableCreateJiraButton;
-
     }
 
     /**
