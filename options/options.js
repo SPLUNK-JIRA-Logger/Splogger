@@ -9,6 +9,7 @@ document.addEventListener(
   function() {
     populateProjectListOptions(document.getElementById("projectName"));
     populateProjectIssueOptions(document.getElementById("issueType"));
+    populateComponentList(document.getElementById("component"));
     chrome.storage.local.get(["jiraLabels"], function(items) {
       var lsProdID = document.getElementById("labelList");
       for (key in items.jiraLabels) {
@@ -132,10 +133,11 @@ document.addEventListener(
             );
 
             // Clearing projects, issueTypes list and selected options on reset logins
-            chrome.storage.local.remove(["projectsList", "selectedProjectNameIdx", "issueTypes", "selectedIssueTypeIdx", "jiraLabels"], function() {});
+            chrome.storage.local.remove(["projectsList", "selectedProjectNameIdx", "issueTypes", "selectedIssueTypeIdx", "jiraLabels", "componentsList", "selectedComponentTypeIdx"], function() {});
             removeSelectBoxOptions(document.getElementById("projectName"));
             removeSelectBoxOptions(document.getElementById("issueType"));
             removeSelectBoxOptions(document.getElementById("labelList"));
+            removeSelectBoxOptions(document.getElementById("component"));
           }
         });
       },
@@ -147,9 +149,10 @@ document.addEventListener(
       "click",
       function() {
         // Clearing projects, issueTypes list and selected options on reset logins
-        chrome.storage.local.remove(["projectsList", "selectedProjectNameIdx", "issueTypes", "selectedIssueTypeIdx"], function() {});
+        chrome.storage.local.remove(["projectsList", "selectedProjectNameIdx", "issueTypes", "selectedIssueTypeIdx", "componentsList", "selectedComponentTypeIdx"], function() {});
         removeSelectBoxOptions(document.getElementById("projectName"));
         removeSelectBoxOptions(document.getElementById("issueType"));
+        removeSelectBoxOptions(document.getElementById("component"));
 
         chrome.storage.local.set(
           {
@@ -477,6 +480,19 @@ document.addEventListener(
       );
     });
 
+    document.getElementById("component").addEventListener("change", function() {
+      chrome.storage.local.set(
+        {
+          selectedComponentTypeIdx: document.getElementById("component").selectedIndex
+        },
+        function() {
+          chrome.storage.local.get("selectedComponentTypeIdx", function(items) {
+            console.log("Selected Component Type Index: " + items.selectedComponentTypeIdx);
+          });
+        }
+      );
+    });
+
     var loadTypeProjectSelection = document.getElementById("projectName");
     loadTypeProjectSelection.addEventListener("change", function() {
       chrome.storage.local.set(
@@ -491,8 +507,9 @@ document.addEventListener(
       );
 
       // Clearing issueTypes list and selected option if Project Type dropdown is changed
-      chrome.storage.local.remove(["issueTypes", "selectedIssueTypeIdx"], function() {});
+      chrome.storage.local.remove(["issueTypes", "selectedIssueTypeIdx", "componentsList", "selectedComponentTypeIdx"], function() {});
       removeSelectBoxOptions(document.getElementById("issueType"));
+      removeSelectBoxOptions(document.getElementById("component"));
 
       var projectList = document.getElementById("projectName");
       var selectedProject = projectList.options[projectList.selectedIndex].value;
@@ -532,6 +549,43 @@ document.addEventListener(
       projectIssueListReq.open("GET", projectIssueListURL, true); // Async = TRUE
       projectIssueListReq.setRequestHeader("Content-Type", "application/json");
       projectIssueListReq.send();
+
+      if (projectList.options[projectList.selectedIndex].value != "")
+      {
+        // Request to GET component list for the selected JIRA instance
+        var selectedProjectName = projectList.options[projectList.selectedIndex].value;
+        if (selectedProjectName != "") {
+          component = document.getElementById("jiraInstance").value + "/rest/api/2/project/" + selectedProjectName + "/components";
+          var componentListRequest = new XMLHttpRequest();
+          componentListRequest.onload = function() {
+            var componentListStatus = "Failure";
+            if (componentListRequest.status === 200) {
+              componentListStatus = "Success";
+              var componentListResponse = JSON.parse(componentListRequest.responseText);
+              var componentNameKey = [];
+              for (var i = 0; i < componentListResponse.length; i++) {
+                componentNameKey.push(componentListResponse[i].name + "|" + componentListResponse[i].key);
+              }
+              chrome.storage.local.set(
+                {
+                  componentsList: componentNameKey
+                },
+                function() {
+                  chrome.storage.local.get("componentsList", function(items) {
+                    console.log("Saved Component Name-Key Value Length: " + items.componentsList.length);
+                  });
+                }
+              );
+              populateComponentList(document.getElementById("component"));
+            }
+          };
+
+          componentListRequest.open("GET", component, true); // Async = TRUE
+          componentListRequest.setRequestHeader("Content-Type", "application/json");
+          componentListRequest.send();
+        }
+
+      }
     });
   },
   false
@@ -542,6 +596,28 @@ function removeSelectBoxOptions(selectbox) {
   for (i = selectbox.options.length - 1; i >= 0; i--) {
     selectbox.remove(i);
   }
+}
+
+function populateComponentList(selectbox) {
+  chrome.storage.local.get("componentsList", function(items) {
+    var options = items.componentsList;
+    for (var i = 0; i < options.length; i++) {
+      var opt = options[i];
+      var res = opt.split("|");
+      var el = document.createElement("option");
+      el.textContent = res[0];
+      el.value = res[1];
+      selectbox.appendChild(el);
+    }
+  });
+
+  chrome.storage.local.get("selectedComponentTypeIdx", function(items) {
+    if (items.selectedComponentTypeIdx < 0 || items.selectedComponentTypeIdx == undefined) {
+      selectbox.selectedIndex = -1;
+    } else {
+      selectbox.selectedIndex = items.selectedComponentTypeIdx;
+    }
+  });
 }
 
 function populateProjectListOptions(selectbox) {

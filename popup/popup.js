@@ -25,6 +25,7 @@ document.addEventListener(
         var currJIRAInstance;
         var jiraTitle = document.getElementById("jiraTitle").value;
         var projectKey = document.getElementById("projectName").value;
+        var componentListSelection = document.getElementById("component").value;
         var issueType = document.getElementById("issueType").value;
         var searchString = document.getElementById("searchString").value;
 
@@ -97,6 +98,9 @@ document.addEventListener(
                             issuetype: {
                               name: issueType
                             },
+                            components:[{
+                              name: componentListSelection
+                            }],
                             labels: labelList
                           }
                         };
@@ -344,7 +348,7 @@ document.addEventListener(
      * This will populate project name and type based on preference
      */
     function populateProjectNameAndType() {
-      chrome.storage.local.get(["projectsList", "selectedProjectNameIdx", "projectTypes", "selectedIssueTypeIdx"], function(items) {
+      chrome.storage.local.get(["projectsList", "selectedProjectNameIdx", "projectTypes", "selectedIssueTypeIdx", "componentsList", "selectedComponentTypeIdx"], function(items) {
         if (
           items.projectsList != undefined &&
           items.projectTypes != undefined &&
@@ -354,6 +358,8 @@ document.addEventListener(
           var res = items.projectsList[items.selectedProjectNameIdx].split("|");
           document.getElementById("projectName").value = res[1];
           document.getElementById("issueType").value = items.projectTypes[items.selectedIssueTypeIdx];
+          var componentHolder = items.componentsList[items.selectedComponentTypeIdx].split("|");
+          document.getElementById("component").value = componentHolder[0];
           document.getElementById("ProjectNameTypeissue").innerHTML = "";
         } else {
           document.getElementById("ProjectNameTypeissue").innerHTML = "Populate Project Name & Issue Type To Create JIRA";
