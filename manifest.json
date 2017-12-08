@@ -9,7 +9,7 @@
         "default_icon": "/images/icon.png",
         "default_popup": "/popup/popup.html"
     },
-    
+
     "icons":
     {
       "128": "images/icon-large.png"
@@ -23,7 +23,7 @@
     },
 
     "content_scripts": [{
-        "matches": ["VALID_URL_HERE", "VALID_URL_HERE"],
+        "matches": ["https://logs.devcerner.com/*search?*", "https://logs.devcerner.com/*search?*"],
         "js": ["contentScript.js"]
     }],
 
