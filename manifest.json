@@ -23,7 +23,7 @@
     },
 
     "content_scripts": [{
-        "matches": ["https://logs.devcerner.com/*search?*", "https://logs.devcerner.com/*search?*"],
+        "matches": ["VALID_URL_HERE", "VALID_URL_HERE"],
         "js": ["contentScript.js"]
     }],
 
