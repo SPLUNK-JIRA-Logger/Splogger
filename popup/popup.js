@@ -89,7 +89,8 @@ document.addEventListener(
 
                         var base64UserPass = window.btoa(currUserID + ":" + currPass);
                         var postData;
-                        if (document.getElementById("component").value != "")
+                        if (typeof document.getElementById("component") != 'undefined' && 
+                            document.getElementById("component").value != "")
                         {
                           postData = {
                             fields: {
