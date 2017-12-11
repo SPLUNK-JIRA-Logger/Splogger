@@ -88,22 +88,41 @@ document.addEventListener(
                         }
 
                         var base64UserPass = window.btoa(currUserID + ":" + currPass);
-                        var postData = {
-                          fields: {
-                            project: {
-                              key: projectKey
-                            },
-                            summary: jiraTitle,
-                            description: jiraDescription,
-                            issuetype: {
-                              name: issueType
-                            },
-                            components:[{
-                              name: componentListSelection
-                            }],
-                            labels: labelList
-                          }
-                        };
+                        var postData;
+                        if (document.getElementById("component").value != "")
+                        {
+                          postData = {
+                            fields: {
+                              project: {
+                                key: projectKey
+                              },
+                              summary: jiraTitle,
+                              description: jiraDescription,
+                              issuetype: {
+                                name: issueType
+                              },
+                              components:[{
+                                name: componentListSelection
+                              }],
+                              labels: labelList
+                            }
+                          };
+                        }
+                        else {
+                          postData = {
+                            fields: {
+                              project: {
+                                key: projectKey
+                              },
+                              summary: jiraTitle,
+                              description: jiraDescription,
+                              issuetype: {
+                                name: issueType
+                              },
+                              labels: labelList
+                            }
+                          };
+                        }
 
                         var createJIRARequest = new XMLHttpRequest();
                         createJIRARequest.onload = function() {
