@@ -89,9 +89,9 @@ document.addEventListener(
 
                         var base64UserPass = window.btoa(currUserID + ":" + currPass);
                         var postData;
-                        if (typeof document.getElementById("component") != 'undefined' && 
-                            document.getElementById("component").value != "")
-                        {
+
+                        var component = document.getElementById("component").value;
+                        if (component !== undefined && component.length > 0) {
                           postData = {
                             fields: {
                               project: {
@@ -108,8 +108,7 @@ document.addEventListener(
                               labels: labelList
                             }
                           };
-                        }
-                        else {
+                        } else {
                           postData = {
                             fields: {
                               project: {
@@ -370,19 +369,24 @@ document.addEventListener(
     function populateProjectNameAndType() {
       chrome.storage.local.get(["projectsList", "selectedProjectNameIdx", "projectTypes", "selectedIssueTypeIdx", "componentsList", "selectedComponentTypeIdx"], function(items) {
         if (
-          items.projectsList != undefined &&
-          items.projectTypes != undefined &&
-          items.projectTypes[items.selectedIssueTypeIdx] != undefined &&
-          items.projectsList[items.selectedProjectNameIdx] != undefined
+          items.projectsList !== undefined &&
+          items.projectTypes !== undefined &&
+          items.projectTypes[items.selectedIssueTypeIdx] !== undefined &&
+          items.projectsList[items.selectedProjectNameIdx] !== undefined
         ) {
           var res = items.projectsList[items.selectedProjectNameIdx].split("|");
           document.getElementById("projectName").value = res[1];
+          
           document.getElementById("issueType").value = items.projectTypes[items.selectedIssueTypeIdx];
-          var componentHolder = items.componentsList[items.selectedComponentTypeIdx].split("|");
-          document.getElementById("component").value = componentHolder[0];
-          document.getElementById("ProjectNameTypeissue").innerHTML = "";
+          
+          if(items.componentsList[items.selectedComponentTypeIdx] !== undefined) {
+            var componentHolder = items.componentsList[items.selectedComponentTypeIdx].split("|");
+            document.getElementById("component").value = componentHolder[0];
+          }
+          
+          document.getElementById("projectNameTypeErrorBlock").innerHTML = "";
         } else {
-          document.getElementById("ProjectNameTypeissue").innerHTML = "Populate Project Name & Issue Type To Create JIRA";
+          document.getElementById("projectNameTypeErrorBlock").innerHTML = "Populate Project Name & Issue Type to be able to create JIRA";
         }
       });
     }

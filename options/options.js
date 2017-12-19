@@ -1,4 +1,4 @@
-var jiraCount = 0;
+// Global Variables (Current Context)
 var currUserID;
 var currPass;
 var currJIRAInstance;
@@ -10,6 +10,7 @@ document.addEventListener(
     populateProjectListOptions(document.getElementById("projectName"));
     populateProjectIssueOptions(document.getElementById("issueType"));
     populateComponentList(document.getElementById("component"));
+
     chrome.storage.local.get(["jiraLabels"], function(items) {
       var lsProdID = document.getElementById("labelList");
       for (key in items.jiraLabels) {
@@ -18,17 +19,20 @@ document.addEventListener(
         label.value = labelValue;
         try {
           lsProdID.add(label, null);
-        } catch (ex) {
+        } catch (exception) {
+          console.log(exception);
           lsProdID.add(label);
         }
       }
     });
+
     // On DOM Load, retrieve saved content
     // Check whether any stored labels exist
     chrome.storage.sync.get("hasLabels", function(content) {
       if (content.hasLabels != undefined && content.hasCredentials === 1) {
         console.log("Labels Exist");
       }
+
       // Retrieve the stored Labels
       chrome.storage.local.get("labelValue", function(content) {
         console.log(labelValue);
@@ -113,7 +117,6 @@ document.addEventListener(
           if (error) {
             console.error(error);
           } else {
-            console.log("Reset Successful");
             document.getElementById("userID").disabled = false;
             document.getElementById("password").disabled = false;
             document.getElementById("jiraInstance").disabled = false;
@@ -132,12 +135,14 @@ document.addEventListener(
               }
             );
 
-            // Clearing projects, issueTypes list and selected options on reset logins
+            // Clear on reset (Projects, Issue Types, Components, Lables)
             chrome.storage.local.remove(["projectsList", "selectedProjectNameIdx", "issueTypes", "selectedIssueTypeIdx", "jiraLabels", "componentsList", "selectedComponentTypeIdx"], function() {});
             removeSelectBoxOptions(document.getElementById("projectName"));
             removeSelectBoxOptions(document.getElementById("issueType"));
             removeSelectBoxOptions(document.getElementById("labelList"));
             removeSelectBoxOptions(document.getElementById("component"));
+
+            console.log("Reset Successful");
           }
         });
       },
@@ -148,7 +153,7 @@ document.addEventListener(
     saveJIRAButton.addEventListener(
       "click",
       function() {
-        // Clearing projects, issueTypes list and selected options on reset logins
+        // Clearing prior to saving
         chrome.storage.local.remove(["projectsList", "selectedProjectNameIdx", "issueTypes", "selectedIssueTypeIdx", "componentsList", "selectedComponentTypeIdx"], function() {});
         removeSelectBoxOptions(document.getElementById("projectName"));
         removeSelectBoxOptions(document.getElementById("issueType"));
@@ -177,7 +182,7 @@ document.addEventListener(
             password: document.getElementById("password").value
           },
           function() {
-            console.log("Saved Password.");
+            console.log("Saved Password!");
           }
         );
 
@@ -189,19 +194,6 @@ document.addEventListener(
             console.log("Saved JIRA Instance: " + document.getElementById("jiraInstance").value) + ".";
           }
         );
-
-        for (var i = 0; i < jiraCount; i++) {
-          var jiraValue = "jiraValue" + i;
-          var jiraInstance = document.getElementById("jiraValue" + i).value;
-          chrome.storage.sync.set(
-            {
-              jiraValue: jiraInstance
-            },
-            function() {
-              console.log(jiraInstance);
-            }
-          );
-        }
 
         document.getElementById("userID").disabled = true;
         document.getElementById("password").disabled = true;
@@ -312,6 +304,9 @@ document.addEventListener(
             console.log("Saved Splunk API URL & App Name.");
           }
         );
+
+        // Disable the button indicating that the save is successful
+        document.getElementById("saveConfig").disabled = true;
       },
       false
     );
@@ -392,7 +387,7 @@ document.addEventListener(
       });
     });
 
-    // This will auto update the history tab with the newely created Jira's
+    // This will auto update the history tab with the newely created JIRAs
     chrome.storage.onChanged.addListener(function(changes, namespace) {
       for (key in changes) {
         if (key == "jiraHistory") {
@@ -402,6 +397,7 @@ document.addEventListener(
       }
     });
 
+    // Add a label to the list & local storage
     document.getElementById("addLabel").addEventListener("click", function() {
       var label = document.createElement("option");
       var labelValue = document.getElementById("labelValue").value;
@@ -438,6 +434,7 @@ document.addEventListener(
       document.getElementById("labelValue").value = "";
     });
 
+    // Remove label from the list & local storage
     document.getElementById("removeLabel").addEventListener("click", function() {
       var labelList = document.getElementById("labelList");
       var selectedLabel = labelList.options[labelList.selectedIndex].text;
@@ -506,7 +503,7 @@ document.addEventListener(
         }
       );
 
-      // Clearing issueTypes list and selected option if Project Type dropdown is changed
+      // Clearing Issue Types & Components if Project Type dropdown is changed
       chrome.storage.local.remove(["issueTypes", "selectedIssueTypeIdx", "componentsList", "selectedComponentTypeIdx"], function() {});
       removeSelectBoxOptions(document.getElementById("issueType"));
       removeSelectBoxOptions(document.getElementById("component"));
@@ -550,12 +547,20 @@ document.addEventListener(
       projectIssueListReq.setRequestHeader("Content-Type", "application/json");
       projectIssueListReq.send();
 
-      if (projectList.options[projectList.selectedIndex].value != "")
-      {
+      if (projectList !== undefined
+         && projectList.options[projectList.selectedIndex] !== undefined
+         && projectList.options[projectList.selectedIndex].value !== undefined
+         && projectList.options[projectList.selectedIndex].value != "") {
         // Request to GET component list for the selected JIRA instance
         var selectedProjectName = projectList.options[projectList.selectedIndex].value;
         if (selectedProjectName != "") {
-          component = document.getElementById("jiraInstance").value + "/rest/api/2/project/" + selectedProjectName + "/components";
+          var componentURL = document.getElementById("jiraInstance").value;
+          if (componentURL.substr(component.length - 1) === "/") {
+            componentURL = document.getElementById("jiraInstance").value + "rest/api/2/project/" + selectedProjectName + "/components";
+          } else {
+            componentURL = document.getElementById("jiraInstance").value + "/rest/api/2/project/" + selectedProjectName + "/components";
+          }
+          
           var componentListRequest = new XMLHttpRequest();
           componentListRequest.onload = function() {
             var componentListStatus = "Failure";
@@ -580,11 +585,10 @@ document.addEventListener(
             }
           };
 
-          componentListRequest.open("GET", component, true); // Async = TRUE
+          componentListRequest.open("GET", componentURL, true); // Async = TRUE
           componentListRequest.setRequestHeader("Content-Type", "application/json");
           componentListRequest.send();
         }
-
       }
     });
   },
@@ -664,4 +668,8 @@ function populateProjectIssueOptions(selectbox) {
       selectbox.selectedIndex = items.selectedIssueTypeIdx;
     }
   });
+}
+
+function enableSaveConfig() {
+  document.getElementById("saveConfig").disabled = false;
 }

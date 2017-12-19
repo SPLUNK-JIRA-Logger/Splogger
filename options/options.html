@@ -43,27 +43,32 @@
       <tr>
         <td>Splunk API URL</td>
         <td><input id='splunkAPIURL' type='text'/></td>
+        <td><img src="/images/asterisks_red.png" alt="Required" title="This is the URL to the API of the installed Splunk instance. Populate it to enable Splogger to create the Event Type and tie the JIRA identifier to it." /></td>
       </tr>
       <tr>
         <td>Splunk APP</td>
         <td><input id='splunkApp' type='text'/></td>
+        <td><img src="/images/asterisks_red.png" alt="Required" title="This is the name of the application that the Event Type will be created on." /></td>
       </tr>
       <tr>
         <td>Project Name</td>
         <td><select id='projectName'></select></td>
+        <td><img src="/images/asterisks_red.png" alt="Required" title="This is the name of the project that the JIRA will be logged against." /></td>
       </tr>
       <tr>
         <td>Issue Type</td>
         <td><select id='issueType'></select></td>
+        <td><img src="/images/asterisks_red.png" alt="Required" title="This is the type of the issue that the JIRA will be created as." /></td>
       </tr>
       <tr>
         <td>Component</td>
         <td><select id='component'></select></td>
+        <td><img src="/images/asterisks_black.png" alt="Required" title="This is the 'Component' field that will be added to the created JIRA." /></td>
       </tr>
       <tr>
         <td>Labels</td>
         <td><input id='labelValue' type='text' /></td>
-        <td><button id="addLabel">Add label</button></td>
+        <td><button id="addLabel">Add Label</button></td>
       </tr>
       <tr>
         <td></td>
@@ -81,5 +86,4 @@
     <div id="historyTabDIV"> </div>
   </div>
 </body>
-
 </html>

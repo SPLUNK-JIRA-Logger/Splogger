@@ -47,9 +47,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         chrome.storage.local.get('notSavableSearch', function(content) {
             if (content.notSavableSearch !== undefined) {
                 if (content.notSavableSearch == true) {
-                    document.getElementById('SearchStringIssue').innerHTML = "Invalid Search String to create event type";
+                    document.getElementById('searchStringErrorBlock').innerHTML = "Invalid Search String to create event type";
                 }else{
-                    document.getElementById('SearchStringIssue').innerHTML = "";
+                    document.getElementById('searchStringErrorBlock').innerHTML = "";
                 }
             } else {
                 console.error('notSavableSearch Undefined!');
@@ -67,8 +67,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             document.getElementById("searchString").value != "" &&
             document.getElementById("stackTrace").value != "" &&
             document.getElementById("eventOccurrences").value != "" &&
-            document.getElementById('SearchStringIssue') == "" &&
-            document.getElementById('ProjectNameTypeissue') == "") {
+            document.getElementById('searchStringErrorBlock') == "" &&
+            document.getElementById('projectNameTypeErrorBlock') == "") {
             enableCreateJiraButton = 1;
         }
 
