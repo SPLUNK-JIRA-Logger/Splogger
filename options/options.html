@@ -9,15 +9,15 @@
 
 <body>
   <h1>Splogger Options</h1>
-  <br/>Splunk Issues Logger for JIRA
+  <br/>Splunk Issue Logger for JIRA
   <br/><br/>
   <div class="tab">
-    <button class="tablinks" id='jiraTabButton'>JIRA</button>
-    <button class="tablinks" id='configTabButton'>Configuration</button>
-    <button class="tablinks" id='historyTabButton'>History</button>
+    <button class="tabLinks" id='jiraTabButton'>JIRA</button>
+    <button class="tabLinks" id='configTabButton'>Configuration</button>
+    <button class="tabLinks" id='historyTabButton'>History</button>
   </div>
 
-  <div id="JIRA" class="tabcontent">
+  <div id="JIRA" class="tabContent">
     <table>
       <tr>
         <td>User ID</td>
@@ -32,39 +32,58 @@
         <td><input placeholder="https://jira.host.com" id="jiraInstance" type="text" /></td>
       </tr>
     </table>
+    
+    <div id="jiraErrorBlockContainer"></div>
+    <br/>
+    
     <button id="addInstance" style="display: none;">Add JIRA Instance</button>
     <div id="jiraInstanceContainer"></div>
-    <br/><br/>
-    <button id="saveJIRA">Save</button><button id="resetJIRA">Reset</button>
+    
+    <button id="saveJIRA">Save</button>
+    <button id="resetJIRA">Reset</button>
   </div>
 
-  <div id="Config" class="tabcontent">
+  <div id="Config" class="tabContent">
     <table>
       <tr>
         <td>Splunk API URL</td>
         <td><input id='splunkAPIURL' type='text'/></td>
         <td><img src="/images/asterisks_red.png" alt="Required" title="This is the URL to the API of the installed Splunk instance. Populate it to enable Splogger to create the Event Type and tie the JIRA identifier to it." /></td>
       </tr>
+      <tr></tr>
       <tr>
         <td>Splunk APP</td>
         <td><input id='splunkApp' type='text'/></td>
-        <td><img src="/images/asterisks_red.png" alt="Required" title="This is the name of the application that the Event Type will be created on." /></td>
+        <td><img src="/images/asterisks_red.png" alt="Required" title="This is the name of the application that the Event Type will be created on. Leaving it blank will cause the Event Type to not be created." /></td>
       </tr>
+      <tr></tr>
       <tr>
         <td>Project Name</td>
         <td><select id='projectName'></select></td>
-        <td><img src="/images/asterisks_red.png" alt="Required" title="This is the name of the project that the JIRA will be logged against." /></td>
+        <td>
+          <button id="removeProjectSelection" title="Remove Project Selection">X</button>
+          <img src="/images/asterisks_red.png" alt="Required" title="This is the name of the project that the JIRA will be logged against." />
+        </td>
       </tr>
+      <tr></tr>
       <tr>
         <td>Issue Type</td>
         <td><select id='issueType'></select></td>
-        <td><img src="/images/asterisks_red.png" alt="Required" title="This is the type of the issue that the JIRA will be created as." /></td>
+        <td>
+          <button id="removeIssueTypeSelection" title="Remove Issue Type Selection">X</button>
+          <img src="/images/asterisks_red.png" alt="Required" title="This is the type of the issue that the JIRA will be created as." />
+        </td>
       </tr>
+      <tr></tr>
       <tr>
         <td>Component</td>
         <td><select id='component'></select></td>
-        <td><img src="/images/asterisks_black.png" alt="Required" title="This is the 'Component' field that will be added to the created JIRA." /></td>
+        <td>
+          <button id="removeComponentSelection" title="Remove Component Selection">X</button>
+          <img src="/images/asterisks_black.png" alt="Optional" title="This is the 'Component' field that will be added to the created JIRA." />
+        </td>
       </tr>
+      <tr></tr>
       <tr>
         <td>Labels</td>
         <td><input id='labelValue' type='text' /></td>
@@ -79,10 +98,12 @@
       </tr>
     </table>
     <br/><br/>
-    <button id="saveConfig">Save</button><button id="resetConfig" disabled>Reset</button>
+    <button id="saveConfig">Save</button>
+    <button id="resetConfig">Reset</button>
+    <button id="exportConfig">Export</button>
   </div>
 
-  <div id="historyTab" class="tabcontent">
+  <div id="historyTab" class="tabContent">
     <div id="historyTabDIV"> </div>
   </div>
 </body>

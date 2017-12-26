@@ -7,6 +7,93 @@ var currJIRAToken;
 document.addEventListener(
   "DOMContentLoaded",
   function() {
+    // Add listeners for the tab buttons
+    // JIRA Tab onClick
+    document.getElementById("jiraTabButton").addEventListener("click", function openTab(evt) {
+      var tabContent = document.getElementsByClassName("tabContent");
+      for (var tabcontentIndex = 0; tabcontentIndex < tabContent.length; tabcontentIndex++) {
+        tabContent[tabcontentIndex].style.display = "none";
+      }
+      
+      var tabLinks = document.getElementsByClassName("tabLinks");
+      for (var tabLinkIndex = 0; tabLinkIndex < tabLinks.length; tabLinkIndex++) {
+        tabLinks[tabLinkIndex].className = tabLinks[tabLinkIndex].className.replace(" active", "");
+      }
+      
+      document.getElementById("JIRA").style.display = "block";
+      evt.currentTarget.className += " active";
+    });
+
+    // Configuration Tab onClick
+    document.getElementById("configTabButton").addEventListener("click", function openTab(evt) {
+      var tabContent = document.getElementsByClassName("tabContent");
+      for (var tabContentIndex = 0; tabContentIndex < tabContent.length; tabContentIndex++) {
+        tabContent[tabContentIndex].style.display = "none";
+      }
+
+      var tabLinks = document.getElementsByClassName("tabLinks");
+      for (var tabLinkIndex = 0; tabLinkIndex < tabLinks.length; tabLinkIndex++) {
+        tabLinks[tabLinkIndex].className = tabLinks[tabLinkIndex].className.replace(" active", "");
+      }
+
+      // Set the Splunk API URL from saved content
+      chrome.storage.local.get("splunkAPIURL", function(content) {
+        if (content.splunkAPIURL !== undefined) {
+          document.getElementById("splunkAPIURL").value = content.splunkAPIURL;
+        } else {
+          console.error("Undefined Splunk API URL!");
+        }
+      });
+
+      // Set the Splunk App Name from saved content
+      chrome.storage.local.get("splunkApp", function(content) {
+        if (content.splunkApp !== undefined) {
+          document.getElementById("splunkApp").value = content.splunkApp;
+        } else {
+          console.error("Undefined Splunk App!");
+        }
+      });
+
+      document.getElementById("Config").style.display = "block";
+      evt.currentTarget.className += " active";
+    });
+
+    // History Tab onClick
+    document.getElementById("historyTabButton").addEventListener("click", function openTab(evt) {
+      var tabContent = document.getElementsByClassName("tabContent");
+      for (var tabContentIndex = 0; tabContentIndex < tabContent.length; tabContentIndex++) {
+        tabContent[tabContentIndex].style.display = "none";
+      }
+
+      var tabLinks = document.getElementsByClassName("tabLinks");
+      for (var tabLinkIndex = 0; tabLinkIndex < tabLinks.length; tabLinkIndex++) {
+        tabLinks[tabLinkIndex].className = tabLinks[tabLinkIndex].className.replace(" active", "");
+      }
+
+      document.getElementById("historyTab").style.display = "block";
+      evt.currentTarget.className += " active";
+
+      // Clear contents of DIV
+      document.getElementById("historyTabDIV").innerHTML = "";
+
+      // Retrieve any stored history
+      chrome.storage.local.get("jiraHistory", function(content) {
+        if (content !== undefined && content.jiraHistory !== undefined) {
+          var historyDIV = document.getElementById("historyTabDIV");
+          for (var i in content.jiraHistory) {
+            historyDIV.innerHTML +=
+              '<p><a href="' + content.jiraHistory[i] + '">' + content.jiraHistory[i].substring(content.jiraHistory[i].indexOf("browse") + 7) + "</a></p>";
+            console.log(historyDIV.innerHTML);
+          }
+        } else {
+          console.log("No JIRA History");
+        }
+      });
+    });
+
+    // Open the JIRA tab on page load
+    document.getElementById("jiraTabButton").click();
+
     populateProjectListOptions(document.getElementById("projectName"));
     populateProjectIssueOptions(document.getElementById("issueType"));
     populateComponentList(document.getElementById("component"));
@@ -29,19 +116,20 @@ document.addEventListener(
     // On DOM Load, retrieve saved content
     // Check whether any stored labels exist
     chrome.storage.sync.get("hasLabels", function(content) {
-      if (content.hasLabels != undefined && content.hasCredentials === 1) {
+      if (content.hasLabels !== undefined && content.hasCredentials === 1) {
         console.log("Labels Exist");
+        // Retrieve the stored Labels
+        chrome.storage.local.get("labelValue", function(content) {
+          console.log(labelValue);
+        });
+      } else {
+        console.log("No Labels Exist!");
       }
-
-      // Retrieve the stored Labels
-      chrome.storage.local.get("labelValue", function(content) {
-        console.log(labelValue);
-      });
     });
 
     // Check whether any stored credentials exist
     chrome.storage.local.get("hasCredentials", function(content) {
-      if (content.hasCredentials != undefined && content.hasCredentials === 1) {
+      if (content.hasCredentials !== undefined && content.hasCredentials === 1) {
         console.log("Credentials Exist");
         document.getElementById("userID").disabled = true;
         document.getElementById("password").disabled = true;
@@ -49,20 +137,20 @@ document.addEventListener(
 
         // Retrieve the stored User ID
         chrome.storage.local.get("userID", function(content) {
-          if (content.userID != undefined) {
+          if (content.userID !== undefined) {
             currUserID = content.userID;
             console.log("Retrieved User ID: " + currUserID);
             document.getElementById("userID").value = currUserID;
 
             // Retrieve the stored Password
             chrome.storage.local.get("password", function(content) {
-              if (content.password != undefined) {
+              if (content.password !== undefined) {
                 currPass = content.password;
                 console.log("Retrieved User Password");
 
                 // Retrieve the stored JIRA Instance
                 chrome.storage.sync.get("jiraInstance", function(content) {
-                  if (content.jiraInstance != undefined) {
+                  if (content.jiraInstance !== undefined) {
                     currJIRAInstance = content.jiraInstance;
                     console.log("Retrieved JIRA Instance: " + currJIRAInstance);
                     document.getElementById("jiraInstance").value = currJIRAInstance;
@@ -70,7 +158,7 @@ document.addEventListener(
 
                     // Retrieve the stored JIRA Token
                     chrome.storage.local.get("jiraToken", function(content) {
-                      if (content.jiraToken != undefined) {
+                      if (content.jiraToken !== undefined) {
                         currJIRAToken = content.jiraToken;
                         console.log("Retrieved JIRA Token: " + currJIRAToken);
                       } else {
@@ -288,6 +376,35 @@ document.addEventListener(
       false
     );
 
+    var removeProjectSelectionButton = document.getElementById("removeProjectSelection");
+    removeProjectSelectionButton.addEventListener(
+      "click",
+      function() {
+        document.getElementById("projectName").selectedIndex = -1;
+        document.getElementById("issueType").selectedIndex = -1;
+        document.getElementById("component").selectedIndex = -1;
+      },
+      false
+    );
+
+    var removeIssueTypeSelectionButton = document.getElementById("removeIssueTypeSelection");
+    removeIssueTypeSelectionButton.addEventListener(
+      "click",
+      function() {
+        document.getElementById("issueType").selectedIndex = -1;
+      },
+      false
+    );
+
+    var removeComponentSelectionButton = document.getElementById("removeComponentSelection");
+    removeComponentSelectionButton.addEventListener(
+      "click",
+      function() {
+        document.getElementById("component").selectedIndex = -1;
+      },
+      false
+    );
+
     var saveConfigButton = document.getElementById("saveConfig");
     saveConfigButton.addEventListener(
       "click",
@@ -305,89 +422,88 @@ document.addEventListener(
           }
         );
 
-        // Disable the button indicating that the save is successful
-        document.getElementById("saveConfig").disabled = true;
+        // Send a notification indicating that the save is successful
+        chrome.notifications.create(
+          "configuration-save-notification",
+          {
+            type: "basic",
+            iconUrl: "/images/success.png",
+            title: "Configuration Saved",
+            message: "Configuration Saved"
+          },
+          function() {
+            console.log("Configuration Save Success Notification Sent");
+          }
+        );
+      },
+      false
+    );
+    
+    var resetConfigButton = document.getElementById("resetConfig");
+    resetConfigButton.addEventListener(
+      "click",
+      function() {
+        document.getElementById("splunkAPIURL").value = "";
+        document.getElementById("splunkApp").value = "";
+        document.getElementById("projectName").selectedIndex = -1;
+        document.getElementById("issueType").selectedIndex = -1;
+        document.getElementById("component").selectedIndex = -1;
+
+        console.log("Configuration Reset Successful");
       },
       false
     );
 
-    document.getElementById("jiraTabButton").addEventListener("click", function openTab(evt) {
-      var i, tabcontent, tablinks;
-      tabcontent = document.getElementsByClassName("tabcontent");
-      for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-      }
-      tablinks = document.getElementsByClassName("tablinks");
-      for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
-      }
-      document.getElementById("JIRA").style.display = "block";
-      evt.currentTarget.className += " active";
-    });
-
-    document.getElementById("configTabButton").addEventListener("click", function openTab(evt) {
-      var i, tabcontent, tablinks;
-      tabcontent = document.getElementsByClassName("tabcontent");
-      for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-      }
-      tablinks = document.getElementsByClassName("tablinks");
-      for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
-      }
-
-      // Set the Splunk API URL & App Name from saved content
-      chrome.storage.local.get("splunkAPIURL", function(content) {
-        if (content.splunkAPIURL != undefined) {
-          document.getElementById("splunkAPIURL").value = content.splunkAPIURL;
-        } else {
-          console.error("Undefined Splunk API URL!");
-        }
-      });
-      chrome.storage.local.get("splunkApp", function(content) {
-        if (content.splunkApp != undefined) {
-          document.getElementById("splunkApp").value = content.splunkApp;
-        } else {
-          console.error("Undefined Splunk App!");
-        }
-      });
-
-      document.getElementById("Config").style.display = "block";
-      evt.currentTarget.className += " active";
-    });
-
-    document.getElementById("historyTabButton").addEventListener("click", function openTab(evt) {
-      var i, tabcontent, tablinks;
-      tabcontent = document.getElementsByClassName("tabcontent");
-      for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-      }
-      tablinks = document.getElementsByClassName("tablinks");
-      for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
-      }
-      document.getElementById("historyTab").style.display = "block";
-      evt.currentTarget.className += " active";
-
-      // Clear contents of DIV
-      document.getElementById("historyTabDIV").innerHTML = "";
-
-      // Retrieve any stored history
-      chrome.storage.local.get("jiraHistory", function(content) {
-        if (content != undefined && content.jiraHistory != undefined) {
-          var historyDIV = document.getElementById("historyTabDIV");
-          for (var i in content.jiraHistory) {
-            historyDIV.innerHTML +=
-              '<p><a href="' + content.jiraHistory[i] + '">' + content.jiraHistory[i].substring(content.jiraHistory[i].indexOf("browse") + 7) + "</a></p>";
-            console.log(historyDIV.innerHTML);
+    var exportConfigButton = document.getElementById("exportConfig");
+    exportConfigButton.addEventListener(
+      "click",
+      function() {
+        var labelList = "";
+        var labelListSelect = document.getElementById("labelList");
+        if(labelListSelect !== undefined && labelListSelect.options !== undefined && labelListSelect.options.length > 0) {
+          for(var labelListIndex = 0; labelListIndex < labelListSelect.options.length; labelListIndex++) {
+            labelList += labelListSelect.options[labelListIndex].text + ",";
           }
-        } else {
-          console.log("No JIRA History");
+          labelList = labelList.slice(0, -1);
         }
-      });
-    });
 
-    // This will auto update the history tab with the newely created JIRAs
+        var componentValue = "";
+        var componentSelection = document.getElementById("component");
+        if(componentSelection.options[componentSelection.selectedIndex] !== undefined && componentSelection.options[componentSelection.selectedIndex].text !== undefined) {
+          componentValue = componentSelection.options[componentSelection.selectedIndex].text;
+        }
+
+        const data = [
+          ["User ID", document.getElementById("userID").value],
+          ["JIRA URL", document.getElementById("jiraInstance").value],
+          ["Splunk API URL", document.getElementById("splunkAPIURL").value],
+          ["Splunk APP", document.getElementById("splunkApp").value],
+          ["JIRA Project", document.getElementById("projectName").value],
+          ["JIRA Issue Type", document.getElementById("issueType").value],
+          ["JIRA Component", componentValue],
+          ["JIRA Labels", labelList]];
+        var lineArray = [];
+        data.forEach(function (infoArray, index) {
+          var line = infoArray.join(",");
+          lineArray.push(line);
+        });
+
+        var fileName = "Splogger_Config_" + Date.now() + ".csv";
+        var csvContent = lineArray.join("\n");
+        var blobContent = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        var downloadLink = document.createElement("a");
+        
+        downloadLink.setAttribute("href", URL.createObjectURL(blobContent));
+        downloadLink.setAttribute("download", fileName);
+        downloadLink.style.visibility = 'hidden';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      },
+      false
+    );
+
+    // This will auto update the history tab with the newly created JIRAs
     chrome.storage.onChanged.addListener(function(changes, namespace) {
       for (key in changes) {
         if (key == "jiraHistory") {
@@ -425,7 +541,7 @@ document.addEventListener(
             },
             function() {
               chrome.storage.local.get(["jiraLabels"], function(items) {
-                console.log(items.jiraLabels);
+                console.log("JIRA Label List Length:" + items.jiraLabels.length);
               });
             }
           );
@@ -464,6 +580,7 @@ document.addEventListener(
         labelList.removeChild(labelList.childNodes[spliceIndex]);
       }
     });
+
     document.getElementById("issueType").addEventListener("change", function() {
       chrome.storage.local.set(
         {
@@ -551,7 +668,8 @@ document.addEventListener(
          && projectList.options[projectList.selectedIndex] !== undefined
          && projectList.options[projectList.selectedIndex].value !== undefined
          && projectList.options[projectList.selectedIndex].value != "") {
-        // Request to GET component list for the selected JIRA instance
+        
+        // Request to GET component list for the selected Project on the JIRA instance
         var selectedProjectName = projectList.options[projectList.selectedIndex].value;
         if (selectedProjectName != "") {
           var componentURL = document.getElementById("jiraInstance").value;
@@ -577,7 +695,7 @@ document.addEventListener(
                 },
                 function() {
                   chrome.storage.local.get("componentsList", function(items) {
-                    console.log("Saved Component Name-Key Value Length: " + items.componentsList.length);
+                    console.log("Read Component Name-Key Value Length: " + items.componentsList.length);
                   });
                 }
               );
@@ -604,14 +722,17 @@ function removeSelectBoxOptions(selectbox) {
 
 function populateComponentList(selectbox) {
   chrome.storage.local.get("componentsList", function(items) {
-    var options = items.componentsList;
-    for (var i = 0; i < options.length; i++) {
-      var opt = options[i];
-      var res = opt.split("|");
-      var el = document.createElement("option");
-      el.textContent = res[0];
-      el.value = res[1];
-      selectbox.appendChild(el);
+    if(items !== undefined && items.componentsList !== undefined) {
+      var options = items.componentsList;
+
+      for (var i = 0; i < options.length; i++) {
+        var opt = options[i];
+        var res = opt.split("|");
+        var el = document.createElement("option");
+        el.textContent = res[0];
+        el.value = res[1];
+        selectbox.appendChild(el);
+      }
     }
   });
 
@@ -626,19 +747,22 @@ function populateComponentList(selectbox) {
 
 function populateProjectListOptions(selectbox) {
   chrome.storage.local.get("projectsList", function(items) {
-    var options = items.projectsList;
-    for (var i = 0; i < options.length; i++) {
-      var opt = options[i];
-      var res = opt.split("|");
-      var el = document.createElement("option");
-      el.textContent = res[0];
-      el.value = res[1];
-      selectbox.appendChild(el);
+    if(items !== undefined && items.projectsList !== undefined) {
+      var options = items.projectsList;
+      
+      for (var i = 0; i < options.length; i++) {
+        var opt = options[i];
+        var res = opt.split("|");
+        var el = document.createElement("option");
+        el.textContent = res[0];
+        el.value = res[1];
+        selectbox.appendChild(el);
+      }
     }
   });
 
   chrome.storage.local.get("selectedProjectNameIdx", function(items) {
-    if (items.selectedProjectNameIdx < 0 || items.selectedProjectNameIdx == undefined) {
+    if (items.selectedProjectNameIdx < 0 || items.selectedProjectNameIdx === undefined) {
       selectbox.selectedIndex = -1;
     } else {
       selectbox.selectedIndex = items.selectedProjectNameIdx;
@@ -648,9 +772,9 @@ function populateProjectListOptions(selectbox) {
 
 function populateProjectIssueOptions(selectbox) {
   chrome.storage.local.get("projectTypes", function(items) {
-    var options = items.projectTypes;
+    if(items !== undefined && items.projectTypes !== undefined) {
+      var options = items.projectTypes;
 
-    if (options != undefined) {
       for (var i = 0; i < options.length; i++) {
         var opt = options[i];
         var el = document.createElement("option");
@@ -662,7 +786,7 @@ function populateProjectIssueOptions(selectbox) {
   });
 
   chrome.storage.local.get("selectedIssueTypeIdx", function(items) {
-    if (items.selectedIssueTypeIdx < 0 || items.selectedIssueTypeIdx == undefined) {
+    if (items.selectedIssueTypeIdx < 0 || items.selectedIssueTypeIdx === undefined) {
       selectbox.selectedIndex = -1;
     } else {
       selectbox.selectedIndex = items.selectedIssueTypeIdx;
